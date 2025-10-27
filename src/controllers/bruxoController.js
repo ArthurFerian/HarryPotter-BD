@@ -53,4 +53,123 @@ export const listarUm = async (req, res) => {
         detalhes: error.message
       })   
     }
+
+    const casasValidas = ['Grifinória', 'Sonserina', 'Corvinal', 'Lufa-Lufa'];
+    if (!casasValidas.includes(casa)) {
+        return res.status(400).json({
+            erro: 'Casa inválida',
+            casasValidas
+        })
+    }
+
+    const novoBruxo = await BruxoModel.create (dado);
+
+    res.status(201).json ({
+        mensagem: 'Bruxo criado com sucesso!',
+        bruxo: novoBruxo
+    })
+
+}
+
+export const criar = async (req, res) => {
+    try {
+        // De onde vem os dados para cá? Para eu usar para criar
+        const { nome, casa, patrono, varinha, anoMatricula } = req.body
+
+        const dado = req.body
+
+        // Validacao campos obrigatorios
+        const camposObrigatorios = ['nome', 'casa', 'varinha', 'anoMatricula'];
+
+        const faltando = camposObrigatorios.filter(campo => !dado[campo]);
+
+        if (faltando.length > 0) {
+            return res.status(400).json({
+                erro: `Os seguintes campos são obrigatórios: ${faltando.join(', ')}.`
+            });
+        }
+
+        // Verificar se a casa é valida
+        const casasValidas = ['Grifinória', 'Sonserina', 'Corvinal', 'Lufa-Lufa'];
+        if (!casasValidas.includes(casa)) {
+            return res.status(400).json({
+                erro: 'Casa inválida!',
+                casasValidas
+            })
+        }
+
+        const novoBruxo = await BruxoModel.create(dado);
+
+        res.status(201).json({
+            mensagem: 'Bruxo criado com sucesso!',
+            bruxo: novoBruxo
+        })
+
+
+    } catch (error) {
+        res.status(500).json({
+            erro: 'Erro ao criar bruxo',
+            detalhes: error.message
+        })
+    }
+}
+
+export const apagar = async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+
+        const bruxoExiste = await BruxoModel.findById(id);
+
+        if (!bruxoExiste) {
+            return res.status(404).json({
+                erro: 'Bruxo não encontrado',
+                id: id
+            })
+        }
+        
+        await BruxoModel.deleteById(id);
+
+        res.status(200).json({
+            mensagem: 'Bruxo apagado com sucesso!',
+            bruxoRemovido: bruxoExiste
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            erro: 'Erro ao apagar bruxo',
+            detalhes: error.message
+        })
+    }
+
+}
+
+export const atualizar = async (req, res) => {
+    try {
+    const id = parseInt(req.params.id);
+    const dados = req.body;
+
+    const bruxoExiste = await BruxoModel.findById(id);
+
+    if (!bruxoExiste) {
+        return res.status(404).json({
+            erro: 'Bruxo não encontrado',
+            id: id
+        })
+    }
+
+    const casasValidas = ['Grifinória', 'Sonserina', 'Corvinal', 'Lufa-Lufa'];
+    if (!casasValidas.includes(dados.casa)) {
+        return res.status(400).json({
+            erro: 'Casa inválida',
+            casasValidas
+        })
+    }
+    
+
+    } catch (error) {
+    res.status(500).json({
+        erro: 'Erro ao atualizar bruxo',
+        detalhes: error.message
+     })
+    }
 }
